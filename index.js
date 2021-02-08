@@ -17,13 +17,9 @@ const logUserMessage = (user) => {
   logs.messageCount += 1;
 
   if (!logs.userList.includes(username)) {
-
-    if (username) {
-      logs.userList.push(username);
-    } else {
-      logs.userList.push(id);
-    }
+    logs.userList.push(username || id)
   }
+
   console.log(logs);
 }
 
