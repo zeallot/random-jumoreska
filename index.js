@@ -4,47 +4,55 @@ const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(tokenTelegram, { polling: true });
 const jumoreski = require('./aneks.json');
 
-
 // temporary solution
 const logs = {
   messageCount: 0,
   userList: [],
 };
 
-const logUserMessage = (user) => {
-  const { id, username } = user;
-
+const logUserMessage = ({ id, username }) => {
   logs.messageCount += 1;
 
   if (!logs.userList.includes(username)) {
-    logs.userList.push(username || id)
+    logs.userList.push(username || id);
   }
 
   console.log(logs);
-}
+};
 
 const getRandomAnek = () => {
   return jumoreski[Math.floor(Math.random() * jumoreski.length)];
 };
 
-bot.on('message', (msg) => {
-  logUserMessage(msg.from)
+const sendAnek = (anek, chatId) => {
+  bot.sendMessage(chatId, anek.text);
+  if (anek?.photoUrl) {
+    bot.sendPhoto(chatId, anek.photoUrl);
+  }
+};
+
+const sendStats = (requesterId, chatId) => {
+  if (requesterId === ownerId) {
+    bot.sendMessage(
+      chatId,
+      `Message count: ${logs.messageCount}, users count: ${logs.userList.length}`
+    );
+  }
+};
+
+const sendReponse = (msg) => {
+  logUserMessage(msg.from);
   const chatId = msg.chat.id;
-  const jumoreska = getRandomAnek();
+  const requesterId = msg.from.id;
 
   switch (msg.text) {
     case '/roll':
-      bot.sendMessage(chatId, jumoreska.text);
-      if (jumoreska?.photoUrl) {
-        bot.sendPhoto(chatId, jumoreska.photoUrl);
-      }
-      break;
+      sendAnek(getRandomAnek(), chatId); break;
     case '/stat':
-      if (msg.from.id === ownerId) {
-        bot.sendMessage(chatId, `Message count: ${logs.messageCount}, users count: ${logs.userList.length}`);
-      }
-      break;
+      sendStats(requesterId, chatId); break;
     default:
-      bot.sendMessage(chatId, 'Могу только в команду /roll')
+      bot.sendMessage(chatId, 'Могу только в команду /roll');
   }
-});
+};
+
+bot.on('message', (msg) => sendReponse(msg));
