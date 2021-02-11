@@ -1,5 +1,4 @@
 const { tokenTelegram, ownerId } = require('./config');
-
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(tokenTelegram, { polling: true });
 const jumoreski = require('./aneks.json');
@@ -40,19 +39,21 @@ const sendStats = (requesterId, chatId) => {
   }
 };
 
-const sendReponse = (msg) => {
+const sendResponse = (msg) => {
   logUserMessage(msg.from);
   const chatId = msg.chat.id;
   const requesterId = msg.from.id;
 
   switch (msg.text) {
     case '/roll':
-      sendAnek(getRandomAnek(), chatId); break;
+      sendAnek(getRandomAnek(), chatId);
+      break;
     case '/stat':
-      sendStats(requesterId, chatId); break;
+      sendStats(requesterId, chatId);
+      break;
     default:
       bot.sendMessage(chatId, 'Могу только в команду /roll');
   }
 };
 
-bot.on('message', (msg) => sendReponse(msg));
+bot.on('message', (msg) => sendResponse(msg));
